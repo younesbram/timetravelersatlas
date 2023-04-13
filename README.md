@@ -1,5 +1,3 @@
-Sure, here's a sample README for your Timetravelersatlas project:
-
 ## TimeTraveler's Atlas
 Timetravelersatlas is a web application that allows users to explore historical events and places on a map, and generate AI-generated text descriptions of those events and places. The app is built with React and Mapbox, and uses the OpenAI API for text generation.
 
