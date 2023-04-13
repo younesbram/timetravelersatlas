@@ -14,7 +14,7 @@ const Map = () => {
   const [locationInput, setLocationInput] = useState('');
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [infoPopup, setInfoPopup] = useState(null);
-  const [loading, setLoading] = useState(false); // define the loading variable
+//  const [loading, setLoading] = useState(false); // define the loading variable
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -51,10 +51,10 @@ const Map = () => {
   const handleGenerate = useCallback(async () => {
     try {
       if (selectedLocation) {
-        setLoading(true); // set loading to true before making the API call
+    //    setLoading(true); // set loading to true before making the API call
         const info = await fetchInfo(selectedLocation.placeName, year, openaiApiKey);
         setInfoPopup(info);
-        setLoading(false); // set loading to false after the API call is completed
+//setLoading(false); // set loading to false after the API call is completed
       }
     } catch (error) {
       console.error(error);
