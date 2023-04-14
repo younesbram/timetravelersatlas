@@ -72,3 +72,13 @@
   right: 10px;
   z-index: 1;
 }
+
+.year-slider-text,
+input[type="text"],
+input[type="password"],
+button {
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}

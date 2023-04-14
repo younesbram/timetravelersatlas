@@ -1,20 +1,32 @@
-import React, { useState, useCallback } from 'react';
-import ReactMapGL, { Marker, Popup } from 'react-map-gl';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { Marker, Popup } from 'react-map-gl';
+import mapboxgl from '!mapbox-gl'; // eslint-disable-line import/no-webpack-loader-syntax
 import YearSlider from './yearslider';
 import fetchInfo from './fetchInfo';
 import mbxGeocoding from '@mapbox/mapbox-sdk/services/geocoding';
 
-const REACT_APP_MAPBOX_ACCESS_TOKEN = "pk.eyJ1IjoibW9ydGFsbGV4IiwiYSI6ImNsZ2R2OW5reDBvOXIzZXM5bjBwamQxNzUifQ.ybCGG03zORX7JVuiW9DpOQ";
-const geocodingClient = mbxGeocoding({ accessToken: REACT_APP_MAPBOX_ACCESS_TOKEN });
+mapboxgl.accessToken = "pk.eyJ1IjoibW9ydGFsbGV4IiwiYSI6ImNsZ2R2OW5reDBvOXIzZXM5bjBwamQxNzUifQ.ybCGG03zORX7JVuiW9DpOQ";
+const geocodingClient = mbxGeocoding({ accessToken: mapboxgl.accessToken });
 
 const Map = () => {
+  const mapContainer = useRef(null);
+  const map = useRef(null);
   const [year, setYear] = useState(1962);
-  const [viewport, setViewport] = useState({});
+  const [viewport, setViewport] = useState({ latitude: 50.911944, longitude: 0.4875, zoom: 14 });
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [locationInput, setLocationInput] = useState('');
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [infoPopup, setInfoPopup] = useState(null);
-//  const [loading, setLoading] = useState(false); // define the loading variable
+
+  useEffect(() => {
+    if (map.current) return; // initialize map only once
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      center: [viewport.longitude, viewport.latitude],
+      zoom: viewport.zoom
+    });
+  });
 
   const handleSubmit = useCallback(async () => {
     try {
@@ -65,44 +77,38 @@ const Map = () => {
     setViewport((prevViewport) => ({ ...prevViewport, ...newViewport }));
   }, []);
 
-  const { latitude: markerLat, longitude: markerLng, placeName: markerName } = selectedLocation || {};
-  const { latitude: infoLat, longitude: infoLng } = viewport;
 
+  const { latitude: markerLat, longitude: markerLng, placeName: markerName } = selectedLocation || {};
   return (
     <div style={{ position: 'relative', height: '100%' }}>
-      <YearSlider year={year} setYear={setYear} />
-      <input
-        type="text"
-        value={locationInput}
-        onChange={(e) => setLocationInput(e.target.value)}
-        placeholder="Enter location"
-        style={{ position: 'absolute', top: 0, right: 150 }}
-      />
-      <button onClick={handleSubmit} style={{ position: 'absolute', top: 0, right: 80 }}>
-        Go
-      </button>
-      <button onClick={handleGenerate} style={{ position: 'absolute', top: 0, right: 10 }}>
-        Generate
-      </button>
-      {/* OpenAI API key input */}
-      <input
-        type="password"
-        value={openaiApiKey}
-        onChange={(e) => setOpenaiApiKey(e.target.value)}
-        placeholder="Enter OpenAI API Key"
-        style={{ position: 'absolute', top: 0, left: 340 }}
-      />
-      <button onClick={handleOverview} style={{ position: 'absolute', top: 0, right: 700 }}>
-        Stuck?
-      </button>
-      <ReactMapGL
-        width="100%"
-        height="100%"
-        {...viewport}
-        mapboxApiAccessToken={REACT_APP_MAPBOX_ACCESS_TOKEN}
-        mapStyle="mapbox://styles/mapbox/satellite-streets-v12"
-        onViewportChange={onViewportChange}
-      >
+      <div className="year-slider-container">
+        <span className="year-slider-text">Year: {year}</span>
+        <input
+          className="year-slider"
+          type="range"
+          min="1962"
+          max="2021"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+        />
+      </div>
+
+      <div className="location-input-container">
+        <span className="input-container">
+          <input
+            className="location-input"
+            type="text"
+            value={locationInput}
+            onChange={(e) => setLocationInput(e.target.value)}
+            placeholder="Enter a location"
+          />
+        </span>
+        <span className="button-container">
+          <button onClick={handleSubmit}>Go</button>
+        </span>
+      </div>
+
+      <div ref={mapContainer} style={{ width: '100%', height: '100%' }}>
         {selectedLocation && (
           <Marker latitude={markerLat} longitude={markerLng}>
             <Popup
@@ -121,8 +127,8 @@ const Map = () => {
         )}
         {infoPopup && (
           <Popup
-            latitude={infoLat}
-            longitude={infoLng}
+            latitude={markerLat}
+            longitude={markerLng}
             closeButton={true}
             closeOnClick={false}
             onClose={() => setInfoPopup(null)}
@@ -134,8 +140,14 @@ const Map = () => {
             </div>
           </Popup>
         )}
-      </ReactMapGL>
+      </div>
+
+      <div className="generate-button-container">
+        <span className="button-container">
+          <button onClick={handleGenerate}>Generate</button>
+        </span>
+      </div>
     </div>
   );
-};
+        };
 export default Map;
