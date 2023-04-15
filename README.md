@@ -35,3 +35,8 @@ Improved visual design to make the app more engaging and intuitive for users
 
 ## Contributing
 Contributions to Timetravelersatlas are welcome! If you encounter a bug or have an idea for an improvement, please open an issue or submit a pull request.
+
+
+## Examples
+![Better UX](./overallscreenshot.jpg)
+ ![Example gen of Siwa in 1600 BC](./screenshot_generated.jpg)
