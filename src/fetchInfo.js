@@ -8,7 +8,7 @@ const fetchInfo = async (location, year, openaiApiKey) => {
     },
     {
       role: 'user',
-      content: `Considering 0 as the common era start; In the year:${year}, what were the top historical events in ${location}? Speak like a professional historian/archaelogist`,
+      content: `(negative years = BC, positive = AD, so -3000 is 3000 BC); In the year:${year}, what were the top historical events in ${location}? Speak like a professional historian/archaelogist`,
     },
   ];
 

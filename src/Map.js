@@ -14,9 +14,9 @@ const Map = () => {
   const [locationInput, setLocationInput] = useState('');
   const [openaiApiKey, setOpenaiApiKey] = useState('');
   const [infoPopup, setInfoPopup] = useState(null);
-//  const [loading, setLoading] = useState(false); // define the loading variable
+  //  const [loading, setLoading] = useState(false); // define the loading variable
 
-  const handleSubmit = useCallback(async () => {
+  const handleGenerate = useCallback(async () => {
     try {
       if (locationInput) {
         const response = await geocodingClient.forwardGeocode({ query: locationInput, limit: 1 }).send();
@@ -26,40 +26,30 @@ const Map = () => {
           const { center, place_name: placeName } = feature;
           const [longitude, latitude] = center;
 
-          setSelectedLocation({ latitude, longitude, placeName });
-          setLocationInput(placeName);
-
           setViewport({
             ...viewport,
             latitude,
             longitude,
-            zoom: 10,
+            zoom: 6.66,
             pitch: 0,
             bearing: 0,
           });
+
+          const info = await fetchInfo(placeName, year, openaiApiKey);
+          setInfoPopup(info);
         }
       }
     } catch (error) {
       console.error(error);
     }
-  }, [locationInput, viewport]);
+  }, [locationInput, year, openaiApiKey, viewport]);
+
 
   const handleOverview = useCallback(() => {
+    setInfoPopup(null);
+    setSelectedLocation(null);
     setViewport({});
   }, []);
-
-  const handleGenerate = useCallback(async () => {
-    try {
-      if (selectedLocation) {
-    //    setLoading(true); // set loading to true before making the API call
-        const info = await fetchInfo(selectedLocation.placeName, year, openaiApiKey);
-        setInfoPopup(info);
-//setLoading(false); // set loading to false after the API call is completed
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }, [selectedLocation, year, openaiApiKey]);
 
   const onViewportChange = useCallback((newViewport) => {
     setViewport((prevViewport) => ({ ...prevViewport, ...newViewport }));
@@ -78,9 +68,6 @@ const Map = () => {
         placeholder="Enter location"
         style={{ position: 'absolute', top: 0, right: 150 }}
       />
-      <button onClick={handleSubmit} style={{ position: 'absolute', top: 0, right: 80 }}>
-        Go
-      </button>
       <button onClick={handleGenerate} style={{ position: 'absolute', top: 0, right: 10 }}>
         Generate
       </button>
@@ -96,8 +83,8 @@ const Map = () => {
         Stuck?
       </button>
       <ReactMapGL
-        width="100%"
-        height="100%"
+        width="95%"
+        height="95%"
         {...viewport}
         mapboxApiAccessToken={REACT_APP_MAPBOX_ACCESS_TOKEN}
         mapStyle="mapbox://styles/mapbox/satellite-streets-v12"
@@ -121,14 +108,18 @@ const Map = () => {
         )}
         {infoPopup && (
           <Popup
+            className="popup"
             latitude={infoLat}
             longitude={infoLng}
             closeButton={true}
             closeOnClick={false}
-            onClose={() => setInfoPopup(null)}
-            anchor="bottom"
-            maxWidth={300}
+            onClose={() => {
+              setInfoPopup(null);
+              handleOverview();
+            }}
+            anchor="top"
           >
+
             <div>
               <p>{infoPopup}</p>
             </div>
@@ -137,5 +128,6 @@ const Map = () => {
       </ReactMapGL>
     </div>
   );
+
 };
 export default Map;
