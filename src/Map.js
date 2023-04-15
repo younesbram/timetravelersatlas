@@ -86,7 +86,7 @@ const Map = () => {
         <input
           className="year-slider"
           type="range"
-          min="1962"
+          min="-5000"
           max="2021"
           value={year}
           onChange={(e) => setYear(e.target.value)}
